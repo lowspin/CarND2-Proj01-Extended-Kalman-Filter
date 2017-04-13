@@ -34,6 +34,12 @@ void KalmanFilter::Update(const VectorXd &z) {
   DONE:
     * update the state by using Kalman Filter equations
   */
+
+  //skip update if sensor measurements are zero
+  if (z[0]==0 && z[1]==0)
+    return;
+
+
   VectorXd z_pred = H_ * x_;
   VectorXd y = z - z_pred;
   MatrixXd Ht = H_.transpose();
@@ -56,17 +62,17 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     * update the state by using Extended Kalman Filter equations
   */
 
+  //skip update if sensor measurements are zero
+  if (z[0]==0 && z[1]==0)
+      return;
+
   Tools tools;
   MatrixXd Hj = MatrixXd(3, 4);
   Hj = tools.CalculateJacobian(x_);
 
   VectorXd r_out = VectorXd(3);
   double ro = sqrt(x_[0]*x_[0] + x_[1]*x_[1]);
-  double phi = atan(x_[1]/x_[0]);
-  if (phi<-M_PI)
-      phi += 2*M_PI;
-  else if (phi>M_PI)
-      phi -= 2*M_PI;
+  double phi = atan2(x_[1],x_[0]); // atan2 returns values between -pi and pi
   double ro_dot = ((x_[0]*x_[2])+(x_[1]*x_[3]))/ro;
 
   r_out << ro, phi, ro_dot;
