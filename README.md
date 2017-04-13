@@ -62,3 +62,29 @@ We will use the measurement values and timestamp in our Kalman filter algorithm.
 
 ## Project Evaluation Rubrics
 
+### Compiling
+Code must compile without errors with `cmake` and `make` using the Basic Build Instructions above.
+
+### Accuracy
+RMSE values for 
+-`sample-laser-radar-measurement-data-1.txt`: [0.0651649, 0.0605378, 0.54319, 0.544191]
+-`sample-laser-radar-measurement-data-2.txt`: [0.185496, 0.190302, 0.476754, 0.804469]
+
+### Algorithm
+1. General Processing Flow:
+General Processing follows the initialize->Predict->Update->Predict->Update->.... cycle. Initialization of covariance and transition functions are handled in the constructor of FusionEKF (FusionEKF.cpp:14-65), while first measurements and timestamp are initialized in the `ProcessMeasurement()` function (FusionEKF.cpp:77-102). Prediction and Update functions are handled by the `Predict()`(kalman_filter.cpp:22-30) and `Update()`(kalman_filter.cpp:32-57) for lidar or `UpdateEKF()` (kalman_filter.cpp:59-95) for radar.
+
+2. First Measurements
+First measurements are handled appropriately in the `ProcessMeasurement()` function of the FusionEKF class (FusionEKF.cpp:77-102).
+
+3. Predict first then update
+Upon receiving a measurement after the first, the algorithm predict object position to the current timestep (FusionEKF.cpp:118-143) and then update the prediction using the new measurement (FusionEKF.cpp:155-163). 
+
+4. Handle both radar and lidar measurements
+If data is a radar measurement, the extended Kalman filter `UpdateEKF()` function is called. If it is a lidar measurement, the regular Kalman filter `Update()` is called.
+
+## Code Efficiency
+- In order to save processing, I added a condition to skip the prediction step if the two measurement timestamps for lidar and radar are identical.
+- To handle the case when initial sensor readings are zeros (e.g. the 2nd dataset), I added a condition in both `UpdateEKF()`  and `Update()` functions in the KalmanFilter class, to check if the first two measurement elements are both zero. If they are, update is skipped and function returns without updating the values.
+- For radar measurements, I used C++'s atan2 function so that the phi value is within +/- PI. 
+
