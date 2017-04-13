@@ -83,8 +83,11 @@ Upon receiving a measurement after the first, the algorithm predict object posit
 4. Handle both radar and lidar measurements
 If data is a radar measurement, the extended Kalman filter `UpdateEKF()` function is called. If it is a lidar measurement, the regular Kalman filter `Update()` is called.
 
-## Code Efficiency
+### Code Efficiency
 - In order to save processing, I added a condition to skip the prediction step if the two measurement timestamps for lidar and radar are identical.
 - To handle the case when initial sensor readings are zeros (e.g. the 2nd dataset), I added a condition in both `UpdateEKF()`  and `Update()` functions in the KalmanFilter class, to check if the first two measurement elements are both zero. If they are, update is skipped and function returns without updating the values.
 - For radar measurements, I used C++'s atan2 function so that the phi value is within +/- PI. 
 
+## Conclusion
+
+In this project, we've implemented the Extended Kalman Filter algortihm to fuze measurements from two sensors - lidar and radar to track a moving target. Lidar sensors have accurate range and position measurement capabilities while radar can measure more accurate radial velocity using doppler. Using sensor fusion, we can make use of both sensors and achieve a more accurate measurement than a single sensor. The project is written in C++. 
